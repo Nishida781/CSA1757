@@ -1,0 +1,89 @@
+import heapq
+
+class Puzzle:
+    def __init__(self, board, goal, empty_tile=0):
+        self.board = board
+        self.goal = goal
+        self.empty_tile = empty_tile
+        self.size = len(board)
+        self.goal_position = {value: (i, j) for i, row in enumerate(goal) for j, value in enumerate(row)}
+        self.moves = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Right, Down, Left, Up
+
+    def find_empty_tile(self):
+        for i, row in enumerate(self.board):
+            for j, value in enumerate(row):
+                if value == self.empty_tile:
+                    return i, j
+        return None
+
+    def is_goal(self):
+        return self.board == self.goal
+
+    def copy_board(self, board):
+        return [row[:] for row in board]
+
+    def get_neighbors(self):
+        neighbors = []
+        empty_i, empty_j = self.find_empty_tile()
+
+        for move in self.moves:
+            new_i, new_j = empty_i + move[0], empty_j + move[1]
+            if 0 <= new_i < self.size and 0 <= new_j < self.size:
+                new_board = self.copy_board(self.board)
+                new_board[empty_i][empty_j], new_board[new_i][new_j] = new_board[new_i][new_j], new_board[empty_i][empty_j]
+                neighbors.append(Puzzle(new_board, self.goal))
+        
+        return neighbors
+
+    def manhattan_distance(self):
+        distance = 0
+        for i, row in enumerate(self.board):
+            for j, value in enumerate(row):
+                if value != self.empty_tile:
+                    goal_i, goal_j = self.goal_position[value]
+                    distance += abs(i - goal_i) + abs(j - goal_j)
+        return distance
+
+    def __lt__(self, other):
+        return self.manhattan_distance() < other.manhattan_distance()
+
+def a_star(start_puzzle):
+    open_set = []
+    closed_set = set()
+    heapq.heappush(open_set, (start_puzzle.manhattan_distance(), start_puzzle))
+
+    while open_set:
+        _, current = heapq.heappop(open_set)
+
+        if current.is_goal():
+            return current
+
+        closed_set.add(tuple(tuple(row) for row in current.board))
+
+        for neighbor in current.get_neighbors():
+            if tuple(tuple(row) for row in neighbor.board) not in closed_set:
+                heapq.heappush(open_set, (neighbor.manhattan_distance(), neighbor))
+
+    return None
+
+def get_user_input(prompt):
+    print(prompt)
+    return [list(map(int, input(f"Enter row {i+1}: ").split())) for i in range(3)]
+
+
+initial_state = [
+    [2, 8, 3],
+    [1, 6, 4],
+    [7, 0, 5]
+]
+
+goal_state = get_user_input("Enter the goal state (3x3 matrix with numbers 0-8):")
+
+
+start_puzzle = Puzzle(initial_state, goal_state)
+solution = a_star(start_puzzle)
+
+if solution:
+    print("Goal state reached!")
+else:
+    print("No solution found.")
