@@ -1,0 +1,64 @@
+class VacuumCleaner:
+    def __init__(self, grid, start_position):
+        self.grid = grid  # The grid with dirty or clean cells
+        self.position = start_position  # Starting position of the vacuum cleaner
+        self.cleaned = 0  # Count of cleaned cells
+        self.rows = len(grid)
+        self.cols = len(grid[0])
+
+    def is_dirty(self, position):
+        # Check if the current position has dirt
+        x, y = position
+        return self.grid[x][y] == 1
+
+    def clean(self, position):
+        # Clean the cell at the given position
+        x, y = position
+        if self.grid[x][y] == 1:
+            self.grid[x][y] = 0  # Mark it as cleaned
+            self.cleaned += 1
+            print(f"Cleaning position {position}")
+
+    def move(self):
+        # Move the vacuum cleaner across the grid systematically.
+        x, y = self.position
+        if y < self.cols - 1:  # Move right in the same row
+            self.position = (x, y + 1)
+        elif x < self.rows - 1:  # Move down to the next row
+            self.position = (x + 1, 0)
+        else:
+            print("Vacuum Cleaner has reached the bottom-right corner.")
+            return False  # Stop if we've reached the end of the grid
+        return True
+
+    def vacuum(self):
+        # Keep cleaning until all the dirt is cleaned
+        print(f"Vacuum Cleaner starting at position {self.position}")
+        while self.cleaned < sum(sum(row) for row in self.grid):
+            # Clean the current position if dirty
+            if self.is_dirty(self.position):
+                self.clean(self.position)
+            
+            # Move the vacuum cleaner to the next position
+            if not self.move():
+                break  # Exit if the vacuum has finished
+
+            # Print current position after cleaning
+            print(f"Vacuum Cleaner at {self.position}")
+
+        print("Cleaning Complete!")
+        print(f"Total cleaned cells: {self.cleaned}")
+
+
+# Example grid (5x5), where 1 represents dirty and 0 represents clean.
+# Let's assume the starting position of the vacuum cleaner is (0, 0).
+grid = [
+    [1, 0, 1, 0, 1],
+    [0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 1],
+    [0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 1]
+]
+
+vacuum_cleaner = VacuumCleaner(grid, (0, 0))
+vacuum_cleaner.vacuum()
