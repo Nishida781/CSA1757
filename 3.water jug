@@ -1,0 +1,66 @@
+from collections import deque
+
+# Function to perform BFS to find the solution path
+def water_jug_bfs(jug1_capacity, jug2_capacity, target_jug1, target_jug2):
+    # Initialize queue to store states as (jug1, jug2)
+    queue = deque()
+    # Dictionary to store visited states and paths
+    visited = set()
+    # Append initial state with empty jugs
+    queue.append((0, 0))
+    visited.add((0, 0))
+
+    # Store path to each state
+    parent_map = {}
+    parent_map[(0, 0)] = None
+
+    while queue:
+        jug1, jug2 = queue.popleft()
+
+        # Check if either jug has the desired amount
+        if jug1 == target_jug1 and jug2 == target_jug2:
+            return reconstruct_path(parent_map, (jug1, jug2))
+
+        # List all possible states from the current state
+        next_states = [
+            (jug1_capacity, jug2),  # Fill jug1
+            (jug1, jug2_capacity),  # Fill jug2
+            (0, jug2),              # Empty jug1
+            (jug1, 0),              # Empty jug2
+            (jug1 - min(jug1, jug2_capacity - jug2), jug2 + min(jug1, jug2_capacity - jug2)),  # Pour jug1 to jug2
+            (jug1 + min(jug2, jug1_capacity - jug1), jug2 - min(jug2, jug1_capacity - jug1))   # Pour jug2 to jug1
+        ]
+
+        # Process each possible state
+        for state in next_states:
+            if state not in visited:
+                queue.append(state)
+                visited.add(state)
+                parent_map[state] = (jug1, jug2)  # Track the path
+
+    # If no solution is found
+    return "No solution found."
+
+# Function to reconstruct path from the parent_map
+def reconstruct_path(parent_map, state):
+    path = []
+    while state is not None:
+        path.append(state)
+        state = parent_map[state]
+    return path[::-1]
+
+# Main function to execute the problem
+if __name__ == "__main__":
+    # Get user input for jug capacities and target amounts for each jug
+    jug1_capacity = int(input("Enter the capacity of the first jug (in gallons): "))
+    jug2_capacity = int(input("Enter the capacity of the second jug (in gallons): "))
+    target_jug1 = int(input("Enter the target amount of water in the first jug (in gallons): "))
+    target_jug2 = int(input("Enter the target amount of water in the second jug (in gallons): "))
+
+    result = water_jug_bfs(jug1_capacity, jug2_capacity, target_jug1, target_jug2)
+    if result == "No solution found.":
+        print(result)
+    else:
+        print("Steps to achieve the desired amount of water:")
+        for step in result:
+            print(step)
