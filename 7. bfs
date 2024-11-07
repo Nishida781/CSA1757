@@ -1,0 +1,43 @@
+from collections import deque
+
+class Graph:
+    def __init__(self):
+        self.graph = {}
+
+    # Add an edge to the graph
+    def add_edge(self, u, v):
+        if u not in self.graph:
+            self.graph[u] = []
+        if v not in self.graph:
+            self.graph[v] = []
+        self.graph[u].append(v)
+        self.graph[v].append(u)  # For undirected graph
+
+    # Perform BFS traversal from the given node
+    def bfs(self, start):
+        visited = set()  # Set to keep track of visited nodes
+        queue = deque([start])  # Queue for BFS
+
+        visited.add(start)
+
+        while queue:
+            node = queue.popleft()  # Remove from the front of the queue
+            print(node, end=" ")
+
+            # Add unvisited neighbors to the queue
+            for neighbor in self.graph.get(node, []):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+
+
+# Example usage
+g = Graph()
+g.add_edge(1, 2)
+g.add_edge(1, 3)
+g.add_edge(2, 4)
+g.add_edge(2, 5)
+g.add_edge(3, 6)
+
+print("BFS Traversal starting from node 1:")
+g.bfs(1)  # Output: 1 2 3 4 5 6
