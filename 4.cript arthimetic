@@ -1,0 +1,43 @@
+import itertools
+
+def solve_cryptarithmetic(words):
+    # Extract the unique letters from the input words
+    letters = ''.join(set(''.join(words)))  # Get unique letters from all the words
+    
+    # Ensure that we have enough unique letters to map to digits (must not exceed 10 digits)
+    if len(letters) > 10:
+        print("Too many unique letters for a cryptarithmetic puzzle!")
+        return None
+
+    # Iterate through all possible assignments of digits to letters
+    for perm in itertools.permutations(range(10), len(letters)):
+        # Create a mapping of each letter to a digit
+        mapping = {letter: digit for letter, digit in zip(letters, perm)}
+
+        # Convert the words to numbers based on the current mapping
+        values = []
+        for word in words:
+            value = 0
+            for char in word:
+                value = value * 10 + mapping[char]
+            values.append(value)
+        
+        # Check if the sum of all the words (except the last one) equals the last word
+        if sum(values[:-1]) == values[-1]:
+            return {
+                "Solution": values,
+                "Mapping": mapping
+            }
+
+# Get input from the user for the cryptarithmetic puzzle
+words_input = input("Enter the words for the puzzle separated by spaces: ").split()
+
+# Solve the cryptarithmetic problem
+result = solve_cryptarithmetic(words_input)
+if result:
+    print("Solution found!")
+    for i, word in enumerate(words_input):
+        print(f"{word}: {result['Solution'][i]}")
+    print("Mapping:", result['Mapping'])
+else:
+    print("No solution found.")
